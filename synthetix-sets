@@ -1,0 +1,9 @@
+all: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+letter: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+upper: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+lower: abcdefghijklmnopqrstuvwxyz
+vowel: aeiouyAEIOUY
+digit: 0123456789
+even: 02468
+odd: 13579
+special: !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
