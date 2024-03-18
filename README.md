@@ -21,34 +21,34 @@ bash run.sh
 
 ## Usage
 
-To use synthetix, run the application with your desired format file. Here is a basic example:
+To use synthetix, run the application with your desired pattern file. Here is a basic example:
 
 ```bash
 ./synthetix -f example.synx
 ```
 
-In this command, -f flags the input of your format file, and `example.synx` represents the file containing your custom wordlist generation parameters. Simply replace it with the path to your own format file to generate wordlists tailored to your specific needs.
+Here, `-f` specifies the pattern file (example.synx) that contains your wordlist generation parameters. Replace **example.synx** with the path to your custom format file.
 
-## How it works ?
+## How It Works
 
-synthetix generate wordlist from a custom wordlist generation parameters file with the `.synx`.
+synthetix generate wordlist from a custom pattern file with the `.synx` extension.
 
 ### Basic Structure of .synx File
 
-Each line in the .synx file could be referred to as a **segment definition** since each line defines how a segment of the wordlist entry is generated.
+A `.synx` file describes a **pattern** for generating wordlist entries, with each line representing one or more **block**.
 
-Each segment followed this specific pattern: `LENGTH;TYPE;RULE`.
+Each line followed this specific pattern: `LENGTH;TYPE;RULE`.
 
 ### Components Explained
 
 #### Length
 
-Indicates the number or range of characters for a segment.
+Specifies the number or range of characters for a block:
 
 | Pattern  |                             Description                            |
 | -------- | ------------------------------------------------------------------ |
 | n        | Generates exactly `n` characters, where n is a positive integer.   |
-| x-z      | Generates between `x` to `z` characters, inclusively.              |
+| x-z      | Generates between `x` to `z` number of characters, inclusively.              |
 | *        | Places a fixed string.                                             |
 
 #### Type
@@ -76,7 +76,7 @@ This parameter provides further control over the generated output by allowing th
 | --------- | ----------------------------------------------------------------------- |
 | [abc]     | Includes the specified characters (e.g., a, b, c).                 |
 
-To exclude specific characters or ranges, precede the pattern with a `!`. For example, **![abc]** excludes the characters a, b, and c from the generated output.
+To exclude characters, prefix the pattern with ! (e.g., ![abc]).
 
 ## Example of a .synx file
 
@@ -87,21 +87,22 @@ To exclude specific characters or ranges, precede the pattern with a `!`. For ex
 *;test
 ```
 
-Sequences (linen) indicate that each wordlist entry should has :
-- Three letter (a-z and A-Z).
-- Two digits, exluding 4 and 5.
-- One character that is either special or the digit 0 or 1.
-- Fixed string "test".
+This pattern dictates that each wordlist entry will contain:
+
+- Three letters (either uppercase or lowercase).
+- Two digits, excluding '4' and '5'.
+- One special character or the digits '0' or '1'.
+- The fixed string "test" appended at the end.
 
 ## Understanding the Output
 
-An entry in the wordlist following the above rules could be **abc12#test**:
+A wordlist entry conforming to the above rules could be **abc12#test** :
 
-`abc` for the first three letters.
-`12` for two digits which are not 4 or 5.
+`abc` as the first three letters.
+`12` as two digits, excluding 4 and 5.
 `#` as a special character.
 `test` as the fixed string appended at the end.
 
-Other valid entry could be : vak670test, dfv00!test, apm16%test.
+Other possible entries include: *vak670test*, *dfv00!test*, *apm16%test*.
 
-For further examples and advanced usage, refer to the `examples` directory in the project repository.
+Explore the examples directory in the project repository for more examples and advanced usage.
