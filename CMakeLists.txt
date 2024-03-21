@@ -11,6 +11,9 @@ set(SOURCE_FILES
     src/parser.cpp
     src/pattern.cpp
     src/block.cpp
+    src/comment-parser.cpp
+    src/metadata-parser.cpp
+    src/sequence-parser.cpp
     src/scoped-timer.cpp
 )
 

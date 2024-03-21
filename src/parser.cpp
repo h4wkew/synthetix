@@ -1,4 +1,9 @@
 #include "parser.h"
+#include "line-parser.h"
+#include "comment-parser.h"
+#include "metadata-parser.h"
+#include "sequence-parser.h"
+
 #include <iostream>
 
 parser::parser(const parser_settings& parser_settings)
@@ -8,6 +13,19 @@ parser::parser(const parser_settings& parser_settings)
     if (error_load_presets)
     {
         std::cerr << "Unable to load presets. (" << error_load_presets.value() << ")" << std::endl;
+    }
+
+    /* DEBUG */ print_presets();
+}
+
+void parser::print_presets() const
+{
+    if (m_presets.empty()) return;
+
+    std::cout << "Presets:" << std::endl;
+    for (const auto& [key, value] : m_presets)
+    {
+        std::cout << " * " << key << ": " << value << std::endl;
     }
 }
 
@@ -79,49 +97,28 @@ std::optional<error_message> parser::parse_line(pattern &current_pattern, const 
 {
     if (line.empty()) return std::nullopt;
 
-    /* State machine
-        - Comment
-        - Metadata
-        - Sequence (one or more blocks)
-    */
+    std::unique_ptr<line_parser> line_parser;
+    char first_char = line[0];
 
-    switch (line[0])
+    switch (first_char)
     {
         case '#':
-            parse_comment_line(current_pattern, line);
+            line_parser = std::make_unique<comment_parser>();
             break;
         case '%':
-            parse_metadata_line(current_pattern, line);
+            line_parser = std::make_unique<metadata_parser>();
             break;
         default:
-            parse_sequence_line(current_pattern, line);
+            line_parser = std::make_unique<sequence_parser>();
             break;
     }
 
-    return std::nullopt;
-}
+    if (!line_parser)
+    {
+        return {"Empty line parser."};
+    }
 
-std::optional<error_message> parser::parse_comment_line(pattern &current_pattern, const std::string& line)
-{
-    // Log debug message
-    return std::nullopt;
-}
+    line_parser->parse_line(current_pattern, line);
 
-std::optional<error_message> parser::parse_metadata_line(pattern &current_pattern, const std::string& line)
-{
-    std::string key = line.substr(1, line.find(' ') - 1);
-    std::string value = line.substr(line.find(' ') + 1);
-
-    current_pattern.add_metadata(key, value);
-    // Log debug message
-
-    return std::nullopt;
-}
-
-std::optional<error_message> parser::parse_sequence_line(pattern &current_pattern, const std::string& line)
-{
-    // state machine
-
-    std::cout << "Sequence: " << line << std::endl;
     return std::nullopt;
 }

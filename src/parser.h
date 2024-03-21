@@ -30,6 +30,7 @@ class parser
 public:
     explicit parser(const parser_settings& parser_settings);
 
+    void print_presets() const;
     std::variant<pattern, error_message> try_parse_file();
     
 private:
@@ -39,10 +40,6 @@ private:
 private:
     std::optional<error_message> load_presets();
     std::optional<error_message> parse_line(pattern &current_pattern, const std::string& line);
-
-    std::optional<error_message> parse_comment_line(pattern &current_pattern, const std::string& line);
-    std::optional<error_message> parse_metadata_line(pattern &current_pattern, const std::string& line);
-    std::optional<error_message> parse_sequence_line(pattern &current_pattern, const std::string& line);
 };
 
 #endif
