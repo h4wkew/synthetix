@@ -9,9 +9,13 @@
 int main(int argc, char **argv)
 {
     argparse::ArgumentParser program("synthetix", "1.0", argparse::default_arguments::help);
-    program.add_argument("-f", "--file")
+    program.add_argument("--pattern")
         .required()
         .help("specifies the input pattern file.")
+        .action([](const std::string &value) { return value; });
+    program.add_argument("--presets")
+        .required()
+        .help("specifies the input presets file.")
         .action([](const std::string &value) { return value; });
 
     try 
@@ -25,14 +29,20 @@ int main(int argc, char **argv)
         std::exit(EXIT_FAILURE);
     }
 
-    auto pattern_file_path = program.get<std::string>("--file");
+    auto pattern_file_path = program.get<std::string>("--pattern");
+    auto presets_file_path = program.get<std::string>("--presets");
     
 // ====================================================================
 
     struct parser_settings parser_settings = 
     {
         .pattern_file_path = pattern_file_path,
-        .presets_file_path = "synthetix-presets"
+        .presets_settings = 
+        {
+            .presets_file_path = presets_file_path,
+            .delimiter = ": ",
+            .delimiter_length = 2
+        }
     };
 
     // Initialize the parser

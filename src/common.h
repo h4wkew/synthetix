@@ -3,6 +3,6 @@
 
 #include <string>
 
-typedef std::string error_message;
+using error_message = std::string;
 
 #endif

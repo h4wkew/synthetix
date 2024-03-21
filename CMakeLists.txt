@@ -10,6 +10,7 @@ set(SOURCE_FILES
     src/synthetix.cpp
     src/parser.cpp
     src/pattern.cpp
+    src/block.cpp
     src/scoped-timer.cpp
 )
 
