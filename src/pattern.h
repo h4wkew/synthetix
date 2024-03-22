@@ -5,16 +5,21 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <optional>
 
 class pattern
 {
 public:
     pattern(const std::string &name);
 
-    void add_metadata(const std::string &key, const std::string &value);
-    void add_block();
+    void add_empty_blocks(int count);
+    std::vector<std::reference_wrapper<block>> get_last_n_blocks(int count);
+    void print_blocks() const;
 
+    void add_metadata(const std::string &key, const std::string &value);
+    std::optional<std::string> get_metadata(const std::string &key) const;
     void print_metadata() const;
+
     void generate_all_combinations() const;
 
 private:

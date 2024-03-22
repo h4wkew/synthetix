@@ -81,11 +81,17 @@ To exclude characters, prefix the pattern with ! (e.g., ![abc]).
 ## Example of a .synx file
 
 ```
-3;letter;
+3;letter
 2;digit;![45]
 1;special;[01]
 *;test
 ```
+
+3;letter
+1;[0123]
+1;letter-[azerty]
+1;digit-[45]
+1;special+[01]
 
 This pattern dictates that each wordlist entry will contain:
 

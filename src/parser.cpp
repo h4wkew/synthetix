@@ -12,7 +12,7 @@ parser::parser(const parser_settings& parser_settings)
     auto error_load_presets = load_presets();
     if (error_load_presets)
     {
-        std::cerr << "Unable to load presets. (" << error_load_presets.value() << ")" << std::endl;
+        std::cerr << "Warning: Unable to load presets. (" << error_load_presets.value() << ")" << std::endl;
     }
 
     /* DEBUG */ print_presets();
@@ -33,17 +33,18 @@ std::variant<pattern, error_message> parser::try_parse_file()
 {
     if (m_settings.pattern_file_path.empty())
     {
-        return {"Pattern file path is empty."};
+        return error_message("Pattern file path is empty.");
     }
 
     std::ifstream pattern_file(m_settings.pattern_file_path);
     if (!pattern_file.is_open())
     {
-        return {"Unable to open the pattern file."};
+        return error_message("Unable to open the pattern file.");
     }
 
     // Create a pattern object
-    std::string pattern_name = m_settings.pattern_file_path.filename().string();
+    std::string filename = m_settings.pattern_file_path.filename().string();
+    std::string pattern_name = filename.substr(0, filename.find_last_of('.'));
     pattern current_pattern(pattern_name);
 
     // Parse the file line by line
@@ -57,8 +58,6 @@ std::variant<pattern, error_message> parser::try_parse_file()
         }
     }
 
-    current_pattern.print_metadata();
-
     return current_pattern;
 }
 
@@ -66,13 +65,13 @@ std::optional<error_message> parser::load_presets()
 {
     if (m_settings.presets_settings.presets_file_path.empty())
     {
-        return {"Presets file path is empty."};
+        return error_message("Presets file path is empty.");
     }
 
     std::ifstream presets_file(m_settings.presets_settings.presets_file_path);
     if (!presets_file.is_open())
     {
-        return {"Unable to open the presets file."};
+        return error_message("Unable to open the presets file.");
     }
 
     std::string line;
@@ -81,7 +80,7 @@ std::optional<error_message> parser::load_presets()
         auto delimiter_position = line.find(m_settings.presets_settings.delimiter);
         if (delimiter_position == std::string::npos)
         {
-            return {"Invalid preset format."};
+            return error_message("Invalid preset format.");
         }
 
         auto key = line.substr(0, delimiter_position);
@@ -115,7 +114,7 @@ std::optional<error_message> parser::parse_line(pattern &current_pattern, const 
 
     if (!line_parser)
     {
-        return {"Empty line parser."};
+        return error_message("Empty line parser.");
     }
 
     line_parser->parse_line(current_pattern, line);

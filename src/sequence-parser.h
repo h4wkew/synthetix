@@ -2,19 +2,20 @@
 #define SEQUENCE_PARSER_H
 
 #include "line-parser.h"
+#include <optional>
+#include <variant>
 
-/* 1-3;letter+digit;![1234]
-    *        *          *
-    |        |          + constraints
-    |        + presets  
+/* 1-3;letter+digit-[1234]
+    *          *
+    |          |
+    |          + character set  
     + surface
 */
 
 enum class sequence_state
 {
     surface,
-    presets,
-    constraints,
+    character_set
 };
 
 class sequence_parser : public line_parser
@@ -27,6 +28,11 @@ public:
 
 private:
     sequence_state m_state;
+
+    // Version 1
+    std::optional<error_message> parse_line_v1(pattern &current_pattern, const std::string& line);
+    std::variant<int, error_message> parse_surface_v1(pattern &current_pattern, const std::string& surface);
+    std::optional<error_message> parse_character_set_v1(pattern &current_pattern, const std::string& character_set, int created_blocks);
 };
 
 #endif
