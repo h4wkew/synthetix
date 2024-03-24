@@ -20,7 +20,7 @@ public:
     std::optional<std::string> get_metadata(const std::string &key) const;
     void print_metadata() const;
 
-    void generate_all_combinations() const;
+    void generate_all_combinations(std::ofstream& output) const;
 
 private:
     std::unordered_map<std::string, std::string> m_metadata;

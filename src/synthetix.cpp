@@ -59,7 +59,9 @@ int main(int argc, char **argv)
 
     // Successfully parsed, proceed with pattern generation
     pattern current_pattern = std::get<pattern>(result_parse_file);
-    current_pattern.generate_all_combinations();
+    std::ofstream output(current_pattern.get_metadata("name").value_or("unknown") + "-output.txt");
+
+    current_pattern.generate_all_combinations(output);
 
     return EXIT_SUCCESS;
 }
