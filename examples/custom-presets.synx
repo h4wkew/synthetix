@@ -1,0 +1,10 @@
+# synthetix - User can use their own character pool
+
+%version 1.0
+%author h4wkew
+
+~even 0248
+~odd 13579
+
+even
+2;odd

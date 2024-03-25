@@ -1,6 +1,0 @@
-# synthetix - All possible gmail addresses
-
-1;letter+digit
-5-63;letter+digit;[.-_]
-1;letter+digit
-*;gmail.com
