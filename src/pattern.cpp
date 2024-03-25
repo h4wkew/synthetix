@@ -1,4 +1,5 @@
 #include "pattern.h"
+#include "terminal.h"
 #include <iostream>
 #include <fstream>
 #include <numeric>
@@ -73,15 +74,23 @@ void pattern::generate_all_combinations(std::ofstream& output) const
 {
     if (!output.is_open() || !output.good())
     {
-        std::cout << "Error: could not open output file" << std::endl;
+        std::cout << "Error: could not open output file." << std::endl;
         return;
     }
     
     std::string name = get_metadata("name").value_or("unknown");
     size_t total_combinations = std::accumulate(m_blocks.begin(), m_blocks.end(), 1, [](size_t acc, const block& block) { return acc * block.get_size(); });
-    std::cout << "Generating all combinations (" << total_combinations << ") for pattern: " << name << std::endl;
+
+    if (total_combinations == 0)
+    {
+        std::cout << "Error: no combinations to generate." << std::endl;
+        return;
+    }
+
+    hide_cursor();
 
     std::vector<int> indices(m_blocks.size(), 0);
+    int count = 1;
     while (true)
     {
         std::string combination;
@@ -97,24 +106,27 @@ void pattern::generate_all_combinations(std::ofstream& output) const
             combination += std::get<char>(block_char);
         }
 
-        /*DEBUG*/ std::cout << combination << std::endl;
+        std::cout << "\r" << count++ << "/" << total_combinations << std::flush;
         output << combination << std::endl;
 
-        bool carry = true;
+        bool should_increment_next = true;
         for (int i = m_blocks.size() - 1; i >= 0; --i)
         {
-            if (carry)
+            if (should_increment_next)
             {
                 indices[i] = (indices[i] + 1) % m_blocks[i].get_size();
-                carry = indices[i] == 0;
+                should_increment_next = indices[i] == 0;
             }
         }
 
-        if (carry)
+        if (should_increment_next)
         {
             break;
         }
     }
+
+    show_cursor();
+    std::cout << "Done! Output saved to " << name << "-output.txt" << std::endl;
 
     output.close();
 }
