@@ -21,7 +21,7 @@ enum class sequence_state
 class sequence_parser : public line_parser
 {
 public:
-    sequence_parser();
+    explicit sequence_parser(parser& parser);
     virtual ~sequence_parser() = default;
     
     std::optional<error_message> parse_line(pattern &current_pattern, const std::string& line) override;

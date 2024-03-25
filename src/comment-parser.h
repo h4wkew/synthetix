@@ -6,7 +6,9 @@
 class comment_parser : public line_parser
 {
 public:
+    explicit comment_parser(parser& parser);
     virtual ~comment_parser() = default;
+
     std::optional<error_message> parse_line(pattern &current_pattern, const std::string& line) override;
 };
 

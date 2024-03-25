@@ -2,10 +2,6 @@
 
 #include <algorithm>
 
-block::block()
-    : m_is_optional(false)
-{}
-
 void block::add_char(char c)
 {
     if (std::find(std::cbegin(m_chars), std::cend(m_chars), c) == std::cend(m_chars))
@@ -22,6 +18,23 @@ void block::add_chars(const std::string& chars)
     for (const auto& c : chars)
     {
         add_char(c);
+    }
+}
+
+void block::remove_char(char c)
+{
+    auto it = std::find(std::begin(m_chars), std::end(m_chars), c);
+    if (it != std::end(m_chars))
+    {
+        m_chars.erase(it);
+    }
+}
+
+void block::remove_chars(const std::string& chars)
+{
+    for (const auto& c : chars)
+    {
+        remove_char(c);
     }
 }
 

@@ -30,16 +30,19 @@ class parser
 public:
     explicit parser(const parser_settings& parser_settings);
 
-    void print_presets() const;
-    std::variant<pattern, error_message> try_parse_file();
+    void add_character_set(const std::string& key, const std::string& value);
+    std::optional<std::string> try_getting_character_set(const std::string& key) const;
+    void print_character_sets() const;
+
+    std::variant<pattern, error_message> try_parsing_file();
     
 private:
     parser_settings m_settings;
-    std::unordered_map<std::string, std::string> m_presets;
+    std::unordered_map<std::string, std::string> m_character_sets;
 
 private:
-    std::optional<error_message> load_presets();
-    std::optional<error_message> parse_line(pattern &current_pattern, const std::string& line);
+    void load_character_sets();
+    std::optional<error_message> try_parsing_line(pattern &current_pattern, const std::string& line);
 };
 
 #endif

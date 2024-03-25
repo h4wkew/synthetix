@@ -49,11 +49,11 @@ int main(int argc, char **argv)
     parser parser(parser_settings);
 
     // Parse the file (return a Pattern object)
-    auto result_parse_file = parser.try_parse_file();
+    auto result_parse_file = parser.try_parsing_file();
     if (std::holds_alternative<error_message>(result_parse_file))
     {
         std::cerr << "Unable to parse the pattern file." << std::endl;
-        std::cerr << std::get<error_message>(result_parse_file) << std::endl;
+        std::cerr << " - " << std::get<error_message>(result_parse_file) << std::endl;
         std::exit(EXIT_FAILURE);
     }
 

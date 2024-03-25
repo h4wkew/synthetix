@@ -10,10 +10,12 @@
 class block
 {
 public:
-    block();
-    
     void add_char(char c);
     void add_chars(const std::string& chars);
+
+    void remove_char(char c);
+    void remove_chars(const std::string& chars);
+
     std::variant<char, error_message> get_char_at(size_t index) const;
     size_t get_size() const;
 
@@ -21,7 +23,6 @@ public:
 
 private:
     std::vector<char> m_chars;
-    bool m_is_optional;
 };
 
 #endif

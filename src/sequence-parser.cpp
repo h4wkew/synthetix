@@ -2,21 +2,20 @@
 
 #include <iostream>
 
-sequence_parser::sequence_parser()
-    : m_state(sequence_state::surface)
+sequence_parser::sequence_parser(parser &parser)
+    : line_parser(parser)
+    , m_state(sequence_state::surface)
 {}
 
 std::optional<error_message> sequence_parser::parse_line(pattern &current_pattern, const std::string& line)
 {
-    std::cout << "Parsing sequence line: " << line << std::endl;
-
     auto version = current_pattern.get_metadata("version").value_or("1.0");
     if (version == "1.0")
     {
         return parse_line_v1(current_pattern, line);
     }
 
-    return error_message("Unknown pattern file version");
+    return error_message("Unknown pattern file version.");
 }
 
 std::optional<error_message> sequence_parser::parse_line_v1(pattern &current_pattern, const std::string& line)
@@ -38,10 +37,11 @@ std::optional<error_message> sequence_parser::parse_line_v1(pattern &current_pat
     int created_blocks = std::get<int>(surface_result);
 
     // Fill the block(s) with character sets
-    std::string character_sets = line.substr(delimiter_position + 1);
-    if (auto error = parse_character_set_v1(current_pattern, character_sets, created_blocks); error.has_value())
+    std::string character_set = line.substr(delimiter_position + 1);
+    auto error_parsing_character_set = parse_character_set_v1(current_pattern, character_set, created_blocks);
+    if (error_parsing_character_set)
     {
-        return error;
+        return error_parsing_character_set.value();
     }
 
     return std::nullopt;
@@ -84,18 +84,25 @@ std::variant<int, error_message> sequence_parser::parse_surface_v1(pattern &curr
 
 std::optional<error_message> sequence_parser::parse_character_set_v1(pattern &current_pattern, const std::string& character_set, int created_blocks)
 {
-    std::cout << "Character set string: " << character_set << std::endl;
     std::cout << "Number of blocks created: " << created_blocks << std::endl;
 
     auto latest_blocks = current_pattern.get_last_n_blocks(created_blocks);
     if (latest_blocks.empty())
     {
-        return error_message("No blocks to fill with character set");
+        return error_message("No blocks to fill with character set.");
     }
 
+    std::string character_set_name("even");
+    auto result_character_set = m_parser.try_getting_character_set(character_set_name);
+    if (!result_character_set)
+    {
+        return error_message("Character set not found: " + character_set_name);
+    }
+
+    auto character_set_value = result_character_set.value();
     for (auto& block : latest_blocks)
     {
-        block.get().add_chars("abc");
+        block.get().add_chars(character_set_value);
     }
 
     current_pattern.print_blocks();

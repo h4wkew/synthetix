@@ -2,6 +2,7 @@
 #include "line-parser.h"
 #include "comment-parser.h"
 #include "metadata-parser.h"
+#include "custom-set-parser.h"
 #include "sequence-parser.h"
 
 #include <iostream>
@@ -9,27 +10,36 @@
 parser::parser(const parser_settings& parser_settings)
     : m_settings(parser_settings)
 {
-    auto error_load_presets = load_presets();
-    if (error_load_presets)
-    {
-        std::cerr << "Warning: Unable to load presets. (" << error_load_presets.value() << ")" << std::endl;
-    }
-
-    /* DEBUG */ print_presets();
+    load_character_sets();
 }
 
-void parser::print_presets() const
+void parser::add_character_set(const std::string& key, const std::string& value)
 {
-    if (m_presets.empty()) return;
+    m_character_sets.insert({key, value});
+}
+
+std::optional<std::string> parser::try_getting_character_set(const std::string& key) const
+{
+    if (auto it = m_character_sets.find(key); it != m_character_sets.end())
+    {
+        return it->second;
+    }
+
+    return std::nullopt;
+}
+
+void parser::print_character_sets() const
+{
+    if (m_character_sets.empty()) return;
 
     std::cout << "Presets:" << std::endl;
-    for (const auto& [key, value] : m_presets)
+    for (const auto& [key, value] : m_character_sets)
     {
         std::cout << " * " << key << ": " << value << std::endl;
     }
 }
 
-std::variant<pattern, error_message> parser::try_parse_file()
+std::variant<pattern, error_message> parser::try_parsing_file()
 {
     if (m_settings.pattern_file_path.empty())
     {
@@ -51,48 +61,29 @@ std::variant<pattern, error_message> parser::try_parse_file()
     std::string line;
     while (std::getline(pattern_file, line))
     {
-        auto error_parse_line = parse_line(current_pattern, line);
-        if (error_parse_line)
+        auto error_parsing_line = try_parsing_line(current_pattern, line);
+        if (error_parsing_line)
         {
-            return error_parse_line.value();
+            return error_parsing_line.value();
         }
     }
 
     return current_pattern;
 }
 
-std::optional<error_message> parser::load_presets()
+void parser::load_character_sets()
 {
-    if (m_settings.presets_settings.presets_file_path.empty())
-    {
-        return error_message("Presets file path is empty.");
-    }
-
-    std::ifstream presets_file(m_settings.presets_settings.presets_file_path);
-    if (!presets_file.is_open())
-    {
-        return error_message("Unable to open the presets file.");
-    }
-
-    std::string line;
-    while (std::getline(presets_file, line))
-    {
-        auto delimiter_position = line.find(m_settings.presets_settings.delimiter);
-        if (delimiter_position == std::string::npos)
-        {
-            return error_message("Invalid preset format.");
-        }
-
-        auto key = line.substr(0, delimiter_position);
-        auto value = line.substr(delimiter_position + m_settings.presets_settings.delimiter_length);
-
-        m_presets[key] = value;
-    }
-
-    return std::nullopt;
+    m_character_sets = {
+        {"all", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"},
+        {"letter", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+        {"lower", "abcdefghijklmnopqrstuvwxyz"},
+        {"upper", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+        {"digit", "0123456789"},
+        {"special", "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"}
+    };
 }
 
-std::optional<error_message> parser::parse_line(pattern &current_pattern, const std::string& line)
+std::optional<error_message> parser::try_parsing_line(pattern &current_pattern, const std::string& line)
 {
     if (line.empty()) return std::nullopt;
 
@@ -102,13 +93,16 @@ std::optional<error_message> parser::parse_line(pattern &current_pattern, const 
     switch (first_char)
     {
         case '#':
-            line_parser = std::make_unique<comment_parser>();
+            line_parser = std::make_unique<comment_parser>(*this);
             break;
         case '%':
-            line_parser = std::make_unique<metadata_parser>();
+            line_parser = std::make_unique<metadata_parser>(*this);
+            break;
+        case '~':
+            line_parser = std::make_unique<custom_set_parser>(*this);
             break;
         default:
-            line_parser = std::make_unique<sequence_parser>();
+            line_parser = std::make_unique<sequence_parser>(*this);
             break;
     }
 
@@ -117,7 +111,5 @@ std::optional<error_message> parser::parse_line(pattern &current_pattern, const 
         return error_message("Empty line parser.");
     }
 
-    line_parser->parse_line(current_pattern, line);
-
-    return std::nullopt;
+    return line_parser->parse_line(current_pattern, line);
 }
