@@ -1,0 +1,11 @@
+# synthetix - Possible gmail address
+
+%version 1.0
+%author h4wkew
+
+~allowed-specials .-_
+
+letter
+10;letter+allowed-specials
+letter
+*;gmail.com
